@@ -1,0 +1,552 @@
+\documentclass[aspectratio=169, 12pt]{beamer}
+
+% ==================================================
+% 1. 基础配置与宏包
+% ==================================================
+% 中文支持与基础数学包
+\usepackage[UTF8, fontset=none, punct=kaiming]{ctex}
+\usepackage{amsmath, amssymb, mathrsfs}
+\usepackage[math-style=ISO, bold-style=ISO]{unicode-math}
+
+% 绘图与多媒体 (注意：视频播放通常需要使用Okular)
+\usepackage{tikz}
+\usepackage{multimedia}
+\usetikzlibrary{arrows.meta, calc, intersections, backgrounds}
+
+% TikZ 全局设置
+\tikzset{>=Stealth[round]}
+
+% ==================================================
+% 2. 字体设置
+% 注意：此模板依赖 'MiSans'，需要使用lualatex编译
+% ==================================================
+% 西文字体
+\setsansfont{MiSans}[
+UprightFont = MiSans,
+BoldFont    = MiSans Demibold
+]
+
+% 中文主字体
+\setCJKmainfont{MiSans}[
+UprightFont = MiSans,
+BoldFont    = MiSans Demibold
+]
+
+% 中文无衬线字体
+\setCJKsansfont{MiSans}[
+UprightFont = MiSans,
+BoldFont    = MiSans Demibold
+]
+
+% 数学字体
+\setmathfont{Latin Modern Math}
+
+% 标题专用字体族
+\newfontfamily\TitleFont{MiSans Semibold}
+
+% 自定义数学算子
+\newcommand{\dif}{\mathop{}\!\mathrm{d}}
+
+% ==================================================
+% 3. Beamer 主题与外观
+% ==================================================
+\usetheme{Madrid}
+\usecolortheme{orchid}
+
+% 字体应用到 Beamer 元素
+\setbeamerfont{title}{family=\TitleFont}
+\setbeamerfont{frametitle}{family=\TitleFont}
+\usefonttheme{professionalfonts}
+\usefonttheme[onlymath]{serif}
+
+% 模板细节微调
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{} % 隐藏页脚
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{theorems}[numbered]
+\setbeamertemplate{background canvas}[vertical shading][top=black!5, bottom=white]
+
+% --- 自定义配色方案 ---
+\definecolor{MathRed}{HTML}{B41414}
+\definecolor{MathBlue}{HTML}{143264}
+\definecolor{SecantGreen}{HTML}{006E32}
+\definecolor{MainText}{RGB}{30, 45, 90}
+
+% --- 颜色应用 ---
+\setbeamercolor{structure}{fg=MathBlue}
+\setbeamercolor{frametitle}{fg=white, bg=MathBlue}
+\setbeamercolor{title}{fg=white, bg=MathBlue}
+\setbeamercolor{block title}{bg=MathBlue!85!black, fg=white}
+\setbeamercolor{block body}{bg=MathBlue!8}
+\setbeamercolor{normal text}{fg=MainText, bg=}
+\setbeamercolor{section title}{fg=MainText}
+\setbeamercolor{alerted text}{fg=MathRed}
+\setbeamercolor{example text}{fg=SecantGreen}
+
+% ==================================================
+% 4. 文档元数据
+% ==================================================
+\title[数学分析 I]{第四章\texorpdfstring{\,}{ }导数与微分}
+\subtitle{\S 4.1 导数概念引入与导数的定义}
+\author[Author Name]{Author Name} % 占位符
+\institute[Institute]{Institute Name} % 占位符
+\date{\today}
+
+% ==================================================
+% 5. 正文内容
+% ==================================================
+\begin{document}
+	
+	% --- 封面与目录 ---
+	\begin{frame}
+		\titlepage
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{课程目录}
+		\tableofcontents[hideallsubsections]
+	\end{frame}
+	
+	% --- 第一部分：问题的引入 ---
+	\section{问题的引入}
+	
+	\begin{frame}{1. 切线问题：从直观到定义}
+		\begin{columns}
+			\column{0.3\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1.2]
+				\useasboundingbox (-2, -2.5) rectangle (2.5, 1.5);
+				\draw[very thick, MathBlue] (0,0) circle (1.2);
+				\fill[black] (0,0) circle (1pt) node[left]{$O$};
+				\node[MathBlue] at (0, -2.4) {圆};
+				
+				\draw<2->[very thick, MathRed] (-1.8, -1.2) -- (1.8, -1.2);
+				\draw<3->[very thick, MathRed] (-0.5, -2.2) -- (2.3, 0.6);
+			\end{tikzpicture}
+			
+			\column{0.7\textwidth}
+			\centering
+			\onslide<4->{
+				\begin{tikzpicture}[scale=0.85, transform shape]
+					\tikzset{
+						axis/.style={->, black!50, thin},
+						curve/.style={very thick, MathBlue, samples=100},
+						eqlabel/.style={font=\small, black, align=center, yshift=-8pt}
+					}
+					% 1. y=x^2
+					\begin{scope}[shift={(-2.2, 2.2)}]
+						\draw[axis] (-1.2,0) -- (1.2,0) node[right]{$x$};
+						\draw[axis] (0,-0.5) -- (0,1.8) node[above]{$y$};
+						\draw[curve, domain=-1.1:1.1] plot (\x, {\x*\x});
+						\node[eqlabel] at (0, -0.6) {\textbf{1.} $y=x^2$};
+					\end{scope}
+					% 2. y=|x|
+					\begin{scope}[shift={(2.2, 2.2)}]
+						\draw[axis] (-1.2,0) -- (1.2,0) node[right]{$x$};
+						\draw[axis] (0,-0.5) -- (0,1.8) node[above]{$y$};
+						\draw[curve] (-1.1, 1.1) -- (0,0) -- (1.1, 1.1);
+						\node[eqlabel] at (0, -0.6) {\textbf{2.} $y=|x|$};
+					\end{scope}
+					% 3. y=x^3
+					\begin{scope}[shift={(-2.2, -1.8)}]
+						\draw[axis] (-1.2,0) -- (1.2,0) node[right]{$x$};
+						\draw[axis] (0,-1.2) -- (0,1.2) node[above]{$y$};
+						\draw[curve, domain=-1.05:1.05] plot (\x, {\x*\x*\x});
+						\node[eqlabel] at (0, -1.4) {\textbf{3.} $y=x^3$};
+					\end{scope}
+					% 4. y=x^(1/3)
+					\begin{scope}[shift={(2.2, -1.8)}]
+						\draw[axis] (-1.2,0) -- (1.2,0) node[right]{$x$};
+						\draw[axis] (0,-1.2) -- (0,1.2) node[above]{$y$};
+						\draw[curve, domain=-1.05:1.05] plot ({\x*\x*\x}, \x);
+						\node[eqlabel] at (0, -1.4) {\textbf{4.} $y=\sqrt[3]{x}$};
+					\end{scope}
+				\end{tikzpicture}
+			}
+		\end{columns}
+	\end{frame}
+	
+	% --- 第二部分：切线问题 ---
+	\section{切线问题}
+	
+	\begin{frame}{2. 曲线切线的本质：割线的极限位置}
+		\begin{columns}
+			\column{0.58\textwidth}
+			\centering
+			\begin{tikzpicture}[
+				scale=1.1,
+				declare function={f(\x)=\x*\x/3;}
+				]
+				\useasboundingbox (-1, -1) rectangle (4, 4);
+				
+				\draw[->] (-0.5,0) -- (3.5,0) node[right]{$x$};
+				\draw[->] (0,-0.5) -- (0,3.5) node[above]{$y$};
+				\draw[thick, MathBlue, domain=0:3.1, samples=100, smooth] plot (\x, {f(\x)});
+				\node[MathBlue] at (0.8, 2.5) {$y=f(x)$};
+				
+				\coordinate (M) at (1, {f(1)});
+				\fill[black] (M) circle (1.5pt) node[above left]{$M$};
+				\draw[dashed, gray] (M) -- (1,0) node[below, black]{$x_0$};
+				
+				\coordinate (N) at (2.5, {f(2.5)});
+				\fill<2->[black] (N) circle (1.5pt) node[above]{$N$};
+				\draw<2->[dashed, gray] (N) -- (2.5,0) node[below, black]{$x$};
+				
+				\draw<2->[thick, SecantGreen] ($(M)!-0.3!(N)$) -- ($(M)!1.2!(N)$);
+				\node<2->[SecantGreen, right] at (2.8, 2.3) {割线};
+				
+				\draw<2->[dashed] (M) -- (2.5, {f(1)}) coordinate (P) -- (N);
+				\path<2-> (M) -- (P) node[midway, above, font=\footnotesize] {$\Delta x$};
+				\path<2-> (P) -- (N) node[midway, right, font=\footnotesize] {$\Delta y$};
+				
+				\draw<3->[thick, MathRed] (-0.5, -0.66) -- (3.0, 1.66);
+				\node<3->[MathRed, right] at (3.0, 1.4) {切线 $T$};
+			\end{tikzpicture}
+			
+			\column{0.42\textwidth}
+			\small
+			\textbf{从割线到切线：}
+			\begin{enumerate}
+				\setlength{\itemsep}{0.6em}
+				\item<1-> 设 $M(x_0, y_0)$ 为曲线上定点。
+				\item<2-> 设 $N(x, y)$ 为邻近动点。
+				\par 割线 $MN$ 的斜率：
+				\[ \tan \varphi = \frac{\Delta y}{\Delta x} = \frac{f(x)-f(x_0)}{x-x_0} \]
+				\item<3-> 当 $N$ 沿曲线趋近于 $M$ ($x \to x_0$) 时，割线$MN$的极限位置的直线$MT$存在且唯一。
+				\begin{block}{切线定义的实质}
+					割线 $MN$ 的极限位置即为切线 $MT$。
+				\end{block}
+			\end{enumerate}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{3. 切线的定义与斜率}
+		% 几何定义
+		\begin{block}{切线的定义 (几何本质)}
+			设 $M(x_0, y_0)$ 是曲线 $C$ 上一点。当动点 $N$ 沿曲线无限趋近于点 $M$ 时，
+			如果割线 $MN$ 的\textbf{极限位置}直线 $MT$ 存在，
+			则称直线 $MT$ 为曲线在点 $M$ 处的\textbf{切线}。
+		\end{block}
+		
+		\vspace{0.5em}
+		
+		% 视频演示
+		\begin{center}
+			\onslide<2->{
+				\movie[width=0.6\linewidth, poster, showcontrols]
+				{%
+					\includegraphics[width=0.6\linewidth, keepaspectratio]{Scene3_1.png}%
+				}
+				{Scene3.mp4}
+			}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}{4. 切线的定义与斜率}
+		\begin{block}{切线的定义 }
+			\small 
+			当动点 $N$ 沿曲线无限趋近于点 $M$ 时，
+			割线 $MN$ 的\textbf{极限位置}即为切线。
+		\end{block}
+		
+		% 斜率推导
+		\onslide<2->{
+			\vspace{0.3em}
+			\textbf{斜率的代数表达}：
+			若切线 $MT$ 的倾斜角 $\alpha \neq 90^\circ$，根据上述定义，
+			其斜率 $k$ 即为割线斜率 $k_{MN}$ 的极限：
+			
+			\setlength{\abovedisplayskip}{3pt}
+			\setlength{\belowdisplayskip}{3pt}
+			\begin{equation*}
+				\boxed{ k = \lim_{N \to M} k_{MN} = \lim_{\Delta x \to 0} \frac{\Delta y}{\Delta x} = \lim_{x \to x_0} \frac{f(x) - f(x_0)}{x - x_0} }
+			\end{equation*}
+		}
+		\vspace{0.3em}
+		\begin{alertblock}<3->{关键认知与辨析}
+			\small
+			\begin{itemize}
+				\setlength{\itemsep}{2pt}
+				\item \textbf{本质回归}：切线是割线的极限位置，而非简单的“只有一个交点”。
+				\item \textbf{特殊情形}：
+				若上述极限为 $\infty$，表示切线\textbf{平行于} $y$ 轴（即垂直切线）。
+				\par \textcolor{gray}{\textit{注：此时切线几何上存在，但导数（斜率）不存在。}}
+			\end{itemize}
+		\end{alertblock}
+	\end{frame}
+	
+	% --- 第三部分：瞬时速度 ---
+	\section{瞬时速度}
+	
+	\begin{frame}{5. 物理背景：变速直线运动 (1)}
+		\begin{columns}[T]
+			\column{0.6\textwidth}
+			\centering
+			\vspace{0pt}
+			\only<1>{
+				\movie[width=\linewidth, poster, showcontrols]
+				{
+					\includegraphics[width=\linewidth, keepaspectratio]{Scene1_1.png}
+				}
+				{Scene1.mp4}
+			}
+			
+			\only<2->{
+				\includegraphics[width=\linewidth, keepaspectratio]{Scene1_2.png}
+			}
+			
+			\vspace{0.2cm}
+			\small \textcolor{gray}{图：非匀速直线运动演示}
+			
+			\column{0.4\textwidth}
+			\begin{block}{核心问题}
+				已知一个物体做变速直线运动，其位移规律为 $s=s(t)$。
+				\par
+				\vspace{0.8em}
+				\onslide<2->{
+					\textbf{求}：物体在 $t_0=2\,\text{s}$ 时刻的瞬时速度 $v(2)$。
+				}
+			\end{block}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{6. 物理背景：变速直线运动 (2)}
+		\begin{columns}[T]
+			\column{0.6\textwidth}
+			\centering
+			\vspace{0pt}
+			\only<1>{
+				\movie[width=\linewidth, poster, showcontrols]
+				{%
+					\includegraphics[width=\linewidth, keepaspectratio]{Scene2_1.png}%
+				}
+				{Scene2.mp4}
+			}
+			\only<2->{
+				\includegraphics[width=\linewidth, keepaspectratio]{Scene2_2.png}
+			}
+			
+			\vspace{0.2cm}
+			\small \textcolor{gray}{图：位移-时间图像与平均速度}
+			
+			\column{0.4\textwidth}
+			\small
+			\textbf{分析路径}：
+			\begin{enumerate}
+				\setlength{\itemsep}{0.2em}
+				\setlength{\parskip}{0pt}
+				
+				\item<2-> \textbf{取增量}：
+				\par 取邻近时刻 $t$，时间增量 $\Delta t = t - t_0$。
+				
+				\item<3-> \textbf{算平均}：
+				\par 计算 $t_0$ 到 $t$ 的平均速度：
+				\setlength{\abovedisplayskip}{2pt}
+				\setlength{\belowdisplayskip}{2pt}
+				\[ \bar{v} = \frac{\Delta s}{\Delta t} = \frac{s(t) - s(t_0)}{t - t_0} \]
+				
+				\item<4-> \textbf{取极限}：
+				\par 令 $t \to t_0$ ($\Delta t \to 0$)，平均速度的极限即为瞬时速度：
+				\setlength{\abovedisplayskip}{2pt}
+				\setlength{\belowdisplayskip}{2pt}
+				\[ \boxed{ v(t_0) = \lim_{t \to t_0} \frac{s(t) - s(t_0)}{t - t_0} } \]
+			\end{enumerate}
+		\end{columns}
+	\end{frame}
+	
+	% --- 第四部分：导数的定义 ---
+	\section{导数的定义}
+	
+	\begin{frame}{7. 导数 (Derivative) 的定义}
+		综合几何切线斜率与物理瞬时速度，我们抽离出共同的数学结构：
+		
+		\begin{definition}[导数]
+			设函数 $y=f(x)$ 在点 $x_0$ 的某邻域内$U(x_0)$有定义。如果极限
+			\[ \lim_{\Delta x \to 0} \frac{\Delta y}{\Delta x} = \lim_{x \to x_0} \frac{f(x) - f(x_0)}{x - x_0} \]
+			存在，则称函数 $f(x)$ 在点 $x_0$ 处\textbf{可导}。
+			此极限值称为 $f(x)$ 在点 $x_0$ 处的\textbf{导数}（也叫变化率，微商）。
+		\end{definition}
+		
+		\vspace{0.2cm}
+		\textbf{记号}：
+		\[
+		f'(x_0), \quad y'(x_0), \quad \frac{\dif y}{\dif x}\bigg|_{x=x_0}, \quad \frac{\dif f}{\dif x}\bigg|_{x=x_0}
+		\]
+	\end{frame}
+	
+	\begin{frame}{8. 导数定义的两种形式}
+		\begin{block}{形式一：$x \to x_0$}
+			\[ f'(x_0) = \lim_{x \to x_0} \frac{f(x) - f(x_0)}{x - x_0} \]
+		\end{block}
+		
+		\vspace{0.5cm}
+		
+		\begin{block}{形式二：$\Delta x \to 0$ (增量形式)}
+			令 $\Delta x = x - x_0$，则 $x = x_0 + \Delta x$：
+			\begin{equation*}
+				f'(x_0) = \lim_{\Delta x \to 0} \frac{\Delta y}{\Delta x} = \lim_{\Delta x \to 0} \frac{f(x_0 + \Delta x) - f(x_0)}{\Delta x}
+			\end{equation*}
+		\end{block}
+	\end{frame}
+	
+	% --- 第五部分：几何意义与应用 ---
+	\section{几何意义与应用}
+	
+	\begin{frame}{9. 导数的几何意义}
+		\begin{columns}
+			\column{0.6\textwidth}
+			\begin{enumerate}
+				\setlength{\itemsep}{1.5em}
+				\item<1-> \textbf{几何意义}：
+				\par 导数 $f'(x_0)$ 表示曲线 $y=f(x)$ 在点 $M(x_0, f(x_0))$ 处的切线斜率。
+				\item<3-> \textbf{数学表达}：
+				\[ \boxed{ k = \tan \alpha = f'(x_0) } \]
+				\small \textcolor{gray}{(其中 $\alpha$ 为切线的倾斜角)}
+				\item<4-> \textbf{切线方程}：
+				\[ y - y_0 = f'(x_0)(x - x_0) \]
+			\end{enumerate}
+			
+			\column{0.4\textwidth}
+			\centering
+			\begin{tikzpicture}[
+				scale=0.9,
+				declare function={f(\x)=0.3*\x*\x;}
+				]
+				\draw[->] (-0.5,0) -- (4,0) node[right]{$x$};
+				\draw[->] (0,-0.5) -- (0,3.5) node[above]{$y$};
+				\draw<1->[thick, MathBlue, domain=0:3.2, samples=100] plot (\x, {f(\x)});
+				\node<1->[MathBlue] at (2.8, 3.0) {$y=f(x)$};
+				
+				\coordinate (M) at (2, {f(2)});
+				\fill<2->[black] (M) circle (2pt) node[above left]{$M(x_0, y_0)$};
+				\draw<2->[dashed, gray] (M) -- (2,0) node[below, black]{$x_0$};
+				\draw<2->[dashed, gray] (M) -- (0,{f(2)}) node[left, black]{$y_0$};
+				
+				\draw<3->[thick, MathRed] (0.5, -0.6) -- (3.0, 2.4);
+				\node<3->[MathRed, right] at (3.0, 2.2) {$T$};
+				
+				\draw<3-> (1.5,0) arc (0:50:0.5);
+				\node<3-> at (1.7, 0.25) {\small $\alpha$};
+			\end{tikzpicture}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{10. 导数的几何应用：切线与法线}
+		\vspace*{-0.5cm}
+		
+		\begin{columns}[T]
+			\column{0.5\textwidth}
+			\begin{exampleblock}{例1}
+				求曲线 $y = x^2$ 在点 $M(-2, 4)$ 处的切线与法线方程。
+			\end{exampleblock}
+			
+			\scriptsize
+			\textbf{解}：设 $f(x) = x^2$。
+			\begin{enumerate}
+				\setlength{\itemsep}{0pt}
+				
+				\item<2-> \textbf{1. 定义法求斜率 $k_T$}：
+				\vspace{-0.2cm}
+				\begin{align*}
+					k_T &= \lim_{\Delta x \to 0} \frac{f(-2 + \Delta x) - f(-2)}{\Delta x} \\
+					&= \lim_{\Delta x \to 0} \frac{(-2 + \Delta x)^2 - 4}{\Delta x} \\
+					&= \lim_{\Delta x \to 0} \frac{4 - 4\Delta x + (\Delta x)^2 - 4}{\Delta x} \\
+					&= \lim_{\Delta x \to 0} (-4 + \Delta x) = -4
+				\end{align*}
+			\end{enumerate}
+			
+			\column{0.5\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=0.35]
+				\draw[->] (-4.5,0) -- (4.8,0) node[right]{$x$};
+				\draw[->] (0,-1) -- (0,9.2) node[above]{$y$};
+				\draw[thick, MathBlue, domain=-3.1:3.1, samples=100] plot (\x, {\x*\x});
+				\node[MathBlue] at (2.5, 7) {$y=x^2$};
+				
+				\coordinate (M) at (-2, 4);
+				\fill<2->[black] (M) circle (4pt) node[left, xshift=-3pt]{$M$};
+				\draw<2->[dashed, gray] (M) -- (-2,0) node[below]{$-2$};
+				\draw<2->[dashed, gray] (M) -- (0,4) node[right, yshift=2pt]{$4$};
+				
+				\draw<3->[thick, MathRed] (-3.2, 8.8) -- (-0.5, -2);
+				\draw<3->[->, MathRed, thin] (-0.5, 6) node[right, font=\scriptsize]{切线} -- (-2.4, 6);
+				
+				\draw<4->[thick, SecantGreen] (-6, 3) -- (4, 5.5);
+				\node<4->[SecantGreen, below, font=\scriptsize] at (3, 5.25) {法线};
+				\draw<4->[thick, black, rotate around={14:(M)}] (M) rectangle ++(0.5, 0.5);
+			\end{tikzpicture}
+			
+			\vspace{-0.3cm}
+			
+			\scriptsize
+			\begin{itemize}
+				\setlength{\itemsep}{2pt}
+				\item<3-> \textbf{2. 切线} ($k_T=-4$)：
+				\par \vspace{-0.1cm}
+				\[ y - 4 = -4(x + 2) \implies \boxed{y = -4x - 4} \]
+				\item<4-> \textbf{3. 法线} ($k_N = 1/4$)：
+				\par \vspace{-0.1cm}
+				\[ y - 4 = \frac{1}{4}(x + 2) \implies \boxed{y = \frac{1}{4}x + \frac{9}{2}} \]
+			\end{itemize}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{11. 导数的物理应用：瞬时速度}
+		\vspace*{-0.5cm}
+		
+		\begin{columns}[T]
+			\column{0.65\textwidth}
+			\begin{exampleblock}{例2：自由落体运动}
+				位移公式 $s(t) = \frac{1}{2}gt^2$。求 $t=2$ 时的瞬时速度。
+			\end{exampleblock}
+			
+			\vspace{0.1cm}
+			\footnotesize
+			\textbf{解}：瞬时速度即位移对时间的导数 $v(2) = s'(2)$。
+			
+			\onslide<2->{
+				\vspace{-0.4cm}
+				\begin{align*}
+					v(2) &= \lim_{\Delta t \to 0} \frac{s(2 + \Delta t) - s(2)}{\Delta t} \\
+					\noalign{\vspace{-2pt}}
+					&= \lim_{\Delta t \to 0} \frac{\frac{1}{2}g(2 + \Delta t)^2 - \frac{1}{2}g(2)^2}{\Delta t} \\
+					&= \frac{1}{2}g \cdot \lim_{\Delta t \to 0} \frac{(4 + 4\Delta t + (\Delta t)^2) - 4}{\Delta t} \\
+					&= \frac{1}{2}g \cdot \lim_{\Delta t \to 0} (4 + \Delta t) \\
+					&= \frac{1}{2}g \cdot 4 = \boxed{2g \quad (\mathrm{m/s})}
+				\end{align*}
+			}
+			
+			\column{0.35\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=0.75]
+				\fill[gray!30] (-1,0) rectangle (1, 0.2);
+				\draw[thick] (-1,0) -- (1,0);
+				
+				\draw[->] (-0.8,0) -- (-0.8, -5.5) node[right]{$s$};
+				\foreach \y/\t in {-0.5/, -2/{t=1}, -4.5/{t=2}} {
+					\draw (-0.9, \y) -- (-0.7, \y);
+				}
+				
+				\shade[ball color=MathBlue] (0,0) circle (0.3);
+				\node[right, font=\scriptsize] at (0.4, 0) {$t=0$};
+				
+				\shade<2->[ball color=MathBlue] (0,-4.5) circle (0.3);
+				\node<2->[right, font=\scriptsize] at (0.4, -4.5) {$t=2$};
+				
+				\draw<2->[->, very thick, MathRed] (0, -4.5) -- (0, -6.5)
+				node[right, font=\scriptsize]{$v=2g$};
+				
+				\draw[dashed, gray] (0,0) -- (0,-4.2);
+			\end{tikzpicture}
+		\end{columns}
+	\end{frame}
+	
+	% --- 结束页 ---
+	\begin{frame}
+		\centering
+		\vspace{1cm}
+		{\Huge \TitleFont \color{MathBlue} 谢谢观看}
+		\vspace{0.5cm}
+	\end{frame}
+	
+\end{document}
